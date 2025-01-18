@@ -11,33 +11,95 @@
         <h1 class="text-center text-primary mb-4">Simulador de Investimentos</h1>
         <div class="card shadow">
             <div class="card-body">
-                <form action="/calcular" method="POST">
+                <form action="http://34.46.108.108:80/calcular" method="POST">
                     <div class="mb-3">
                         <label for="aporte_inicial" class="form-label">Aporte Inicial (R$):</label>
-                        <input type="number" id="aporte_inicial" name="aporte_inicial" class="form-control" step="0.01" required>
+                        <input type="number" id="aporte_inicial" name="aporte_inicial" class="form-control" step="0.01" placeholder="Valor inicial do Investimento. Exemplo: 1000" required>
                     </div>
                     <div class="mb-3">
                         <label for="aporte_mensal" class="form-label">Aporte Mensal Inicial (R$):</label>
-                        <input type="number" id="aporte_mensal" name="aporte_mensal" class="form-control" step="0.01" required>
+                        <input type="number" id="aporte_mensal" name="aporte_mensal" class="form-control" step="0.01" placeholder="Valor aplicado mensalmente. Exemplo: 500" required>
                     </div>
                     <div class="mb-3">
                         <label for="inflacao_ano" class="form-label">Inflação Anual (%):</label>
-                        <input type="number" id="inflacao_ano" name="inflacao_ano" class="form-control" step="0.01" required>
+                        <input type="number" id="inflacao_ano" name="inflacao_ano" class="form-control" step="0.01" placeholder="Inflação Acumulada nos últimos 12 meses (Consultar BCB e/ou outras fontes). Ex.: 4.9" required>
                     </div>
                     <div class="mb-3">
                         <label for="rendimento_nominal" class="form-label">Rendimento Nominal Anual (%):</label>
-                        <input type="number" id="rendimento_nominal" name="rendimento_nominal" class="form-control" step="0.01" required>
+                        <input type="number" id="rendimento_nominal" name="rendimento_nominal" class="form-control" step="0.01" placeholder="Rendimento anual do seu investimento. Exemplo: 12" required>
                     </div>
                     <div class="mb-3">
                         <label for="total_anos" class="form-label">Total de Anos:</label>
-                        <input type="number" id="total_anos" name="total_anos" class="form-control" required>
+                        <input type="number" id="total_anos" name="total_anos" class="form-control" placeholder="Tempo em anos do Investimento. Exemplo: 10" required>
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Simular</button>
                 </form>
             </div>
         </div>
 
-        
+        {% if resultados %}
+     <head>
+    <style>
+        .text-justify {
+            text-align: justify;
+        }
+    </style>
+</head>
+<body>
+    <div class="mt-5">
+        <h2 class="text-success">Resultados:</h2>
+        <p class="text-muted fst-italic text-justify">
+            Estes resultados levam em consideração a inflação acumulada nos últimos 12 meses. Como se trata de uma simulação, nenhum resultado aqui obtido deve ser tratado como real. 
+            Os valores aqui simulados se baseiam em dados inseridos pelo usuário, e servem para mera projeção, não podendo ter validade para fins científicos ou de outra finalidade. 
+            Esta calculadora não deve ser um instrumento utilizado sem outros elementos de estudo e jamais deve ser responsabilizada por quaisquer decisões tomadas a partir de simulações nela realizadas.
+        </p>
+        <ul class="list-group">
+            <li class="list-group-item">Saldo final (sem IR): R$ {{ resultados.saldo_sem_ir|round(2) }}</li>
+            <li class="list-group-item">Saldo final (com IR): R$ {{ resultados.saldo_com_ir|round(2) }}</li>
+            <li class="list-group-item">Total de aportes: R$ {{ resultados.total_aportes|round(2) }}</li>
+            <li class="list-group-item">Ganho nominal total: R$ {{ resultados.ganhos_nominais|round(2) }}</li>
+            <li class="list-group-item">Rendimento real total: R$ {{ resultados.rendimento_real|round(2) }}</li>
+            <li class="list-group-item">Imposto de renda total: R$ {{ resultados.imposto_renda|round(2) }}</li>
+            <li class="list-group-item">Valor equivalente nos dias atuais (sem desc. IR): R$ {{ resultados.valor_atual_sem_ir|round(2) }}</li>
+            <li class="list-group-item">Valor equivalente nos dias atuais (com desc. IR): R$ {{ resultados.valor_atual_com_ir|round(2) }}</li>
+        </ul>
+    </div>
+</body>
+        <div class="mt-5">
+         <h3 class="text-primary">Evolução Mensal:</h3>
+         <head>
+    <style>
+        .text-justify {
+            text-align: justify;
+        }
+    </style>
+</head>
+<body>
+    <div class="mt-5">
+        <h2 class="text-success">Resultados:</h2>
+        <p class="text-muted fst-italic text-justify">
+            Este cálculo leva em consideração a inflação acumulada no ano e a toma como base para calcular a evolução necessária dos aportes mensais para que acompanhe a depreciação.
+        </p>
+            <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Mês</th>
+                <th>Aporte Ajustado (R$)</th>
+                <th>Saldo Acumulado (R$)</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for registro in resultados.historico %}
+            <tr>
+                <td>{{ registro.mes }}</td>
+                <td>{{ registro.aporte|round(2) }}</td>
+                <td>{{ registro.saldo|round(2) }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+            </table>
+            </div>
+        {% endif %}
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
